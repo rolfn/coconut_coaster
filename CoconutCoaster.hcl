@@ -21,6 +21,7 @@ set Rk2 [expr $Rk1 - $shThickness]; # Schalenradius innen
 set Rk3 [expr 84 / 2];
 set sphereR 10;
 set sphereOffs 9;
+set drillDiameter 4;
 set Ru [expr $coaWd / 2]; # Untersetzerradius
 set sphereAngle 120;
 
@@ -89,9 +90,34 @@ for {set i 0} {< $i 3} {incr $i} {
   }
 }
 
+set coaLeft "[expr [X $sphereLeft]] [Y $coaOrig]";
+
+# Bohrungen
+pen white
+fillrectmid $coaLeft $drillDiameter [expr 2 * $sphereR + $coaHd];
+pen black $thickline solid;
+rectmid [here] $drillDiameter [expr 2 * $sphereR + $coaHd];
+rectmid [here] $drillDiameter $coaHd;
+moveto [expr [X [here]] - $drillDiameter /2] [expr [Y [here]] - $sphereR - $coaHd /2];
+#fillcircle [here] 1;
+set tmp [here];
+#linepolar [expr $drillDiameter /2] -45;
+set a "[expr [X $tmp] + $drillDiameter /2] [expr [Y $tmp] - $drillDiameter /2]";
+set b "[expr [X $tmp] + $drillDiameter] [Y $tmp]";
+pen white;
+fillpolygon $tmp $a $b;
+pen black $thickline solid;
+polygon $tmp $a $b;
+set tmp "[X $tmp] [expr [Y $tmp] + 2 * $sphereR + $coaHd]";
+set a "[expr [X $tmp] + $drillDiameter /2] [expr [Y $tmp] + $drillDiameter /2]";
+set b "[expr [X $tmp] + $drillDiameter] [Y $tmp]";
+pen white;
+fillpolygon $tmp $a $b;
+pen black $thickline solid;
+polygon $tmp $a $b;
+
 pen black $thinline dashdotted;
 circle $O2 $Rk3
-
 
 # Mittellinien
 pen black $thinline dashdotted;
@@ -100,8 +126,9 @@ linemid [expr 2.2 * $Ru] 0;
 moveto [X $O1] [expr [Y $O1] + 0.75 * $Rk1];
 #linemid [expr 2.2 * $Rk1]  0;
 linemid [expr 2.2 * $Rk1] 90;
-moveto [expr [X $sphereLeft]] [Y $coaOrig];
-fillcircle [here] 2;
+#moveto [expr [X $sphereLeft]] [Y $coaOrig];
+moveto $coaLeft;
+###fillcircle [here] 2;
 linemid [expr 1.5 * (4 * $sphereR + $coaHd)] 90;
 moveto $O2;
 linemid [expr 2.2 * $Rk1]  0;
