@@ -23,7 +23,8 @@ set Rk2 [expr $Rk1 - $shThickness]; # Schalenradius innen
 set Rk3 [expr 84 / 2];
 set sphereR 10;
 set sphereOffs 9;
-set drillDiameter 4;
+set drillCoa 4;
+set drillSphere 3.5;
 set Ru [expr $coaWd / 2]; # Untersetzerradius
 set sphereAngle 120;
 set Ma 8;   # Abstand erste Maßlinie
@@ -42,7 +43,7 @@ puts $Rk2
 moveto [X $O1] [expr [Y $O1] + $Rk1 + $coaHt / 2 + $sphereOffs];
 set coaCenter [here]
 rectmid $coaCenter $coaWd $coaHt;
-hatch -45 1.2;
+hatch 45 1.2;
 set coaOrig [here]
 set O2 "[expr [X $coaOrig] + 165] [Y $coaOrig]"; # Bezug rechts
 pen black $thinline solid;
@@ -51,7 +52,7 @@ hatchrectmid $coaOrig $coaWd $coaHt;
 pen black $thickline solid;
 circle [expr [X [here]] - $Rk3] [expr [Y [here]] - $coaHt - $sphereR / 2] $sphereR;
 set sphereLeft [here]
-hatch 45 1.2;
+hatch -45 1.2;
 pen black $thinline solid;
 hatchcircle [here] $sphereR;
 circle [X [here]] [expr [Y [here]] + $coaHt + 2 * $sphereR] $sphereR;
@@ -97,23 +98,23 @@ set coaLeft "[expr [X $sphereLeft]] [Y $coaOrig]";
 
 # Bohrungen
 pen white
-fillrectmid $coaLeft $drillDiameter [expr 2 * $sphereR + $coaHt];
+fillrectmid $coaLeft $drillCoa [expr 2 * $sphereR + $coaHt];
 pen black $thickline solid;
-rectmid [here] $drillDiameter [expr 2 * $sphereR + $coaHt];
-rectmid [here] $drillDiameter $coaHt;
-moveto [expr [X [here]] - $drillDiameter /2] [expr [Y [here]] - $sphereR - $coaHt /2];
+rectmid [here] $drillCoa [expr 2 * $sphereR + $coaHt];
+rectmid [here] $drillCoa $coaHt;
+moveto [expr [X [here]] - $drillCoa /2] [expr [Y [here]] - $sphereR - $coaHt /2];
 #fillcircle [here] 1;
 set tmp [here];
-#linepolar [expr $drillDiameter /2] -45;
-set a "[expr [X $tmp] + $drillDiameter /2] [expr [Y $tmp] - $drillDiameter /2]";
-set b "[expr [X $tmp] + $drillDiameter] [Y $tmp]";
+#linepolar [expr $drillCoa /2] -45;
+set a "[expr [X $tmp] + $drillCoa /2] [expr [Y $tmp] - $drillCoa /2]";
+set b "[expr [X $tmp] + $drillCoa] [Y $tmp]";
 pen white;
 fillpolygon $tmp $a $b;
 pen black $thickline solid;
 polygon $tmp $a $b;
 set tmp "[X $tmp] [expr [Y $tmp] + 2 * $sphereR + $coaHt]";
-set a "[expr [X $tmp] + $drillDiameter /2] [expr [Y $tmp] + $drillDiameter /2]";
-set b "[expr [X $tmp] + $drillDiameter] [Y $tmp]";
+set a "[expr [X $tmp] + $drillCoa /2] [expr [Y $tmp] + $drillCoa /2]";
+set b "[expr [X $tmp] + $drillCoa] [Y $tmp]";
 pen white;
 fillpolygon $tmp $a $b;
 pen black $thickline solid;
@@ -127,7 +128,7 @@ pen black $thinline dashdotted;
 moveto $coaOrig; 
 linemid [expr 2.1 * $Ru] 0;
 moveto [X $O1] [expr [Y $O1] + 0.75 * $Rk1];
-linemid [expr 2 * $Rk1] 90;
+linemid [expr 1.6 * $Rk1] 90;
 #moveto [expr [X $sphereLeft]] [Y $coaOrig];
 moveto $coaLeft;
 ###fillcircle [here] 1;
@@ -167,6 +168,38 @@ dimlinerel 0 $coaHt "≈%.0f";
 dimline arrows;
 linerel -$Ma 0;
 
+# Benennungen
+## Bohrung in Holzscheibe
+set b "[X $sphereLeft] [expr [Y $sphereLeft] + $sphereR + $coaHt /2]";
+set a "[expr [X $b] + 14] [expr [Y $b] - 10]"
+arrow $a $b;
+moveto $a; label "ø$drillCoa" E;
+## Holzscheibe
+set d "[expr [X $b] + 1.9 * $Rk3] [Y $b]"
+set c "[expr [X $a] + 1.9 * $Rk3] [Y $a]"
+arrow $c $d;
+font SansSerif italic 4;
+moveto $c; label "Wooden disc" N;
+font SansSerif plain 4;
+moverel 0 -6; label "Holzscheibe" N;
+## Bohrung in Kugel
+set b "[X $b] [expr [Y $b] - $coaHt /2 - $sphereR /2]";
+set a "[expr [X $b] - 14] [expr [Y $b] - 10]"
+arrow $a $b;
+moveto $a; label "ø$drillSphere" W;
+## Kugel
+set b "[X $b] [expr [Y $b] + 1.5 * $coaHt + 1.5 * $sphereR]";
+set a "[expr [X $b] + 14] [expr [Y $b] + 10]"
+arrow $a $b;
+moveto $a;
+font SansSerif plain 4;
+label "Holzkugel  /" SW;
+font SansSerif italic 4;
+label "Wooden ball" SE;
+## 3 Kugeln
+# jeweils $Po° versetzt
+
+
 # Überschrift
 font SansSerif plain 8
 moveto 95 20;
@@ -177,8 +210,20 @@ text {Coaster for coconut shells} 297;
 # Hinweis zu Schrauben
 moveto 18 225;
 font SansSerif plain 4;
-text {Doppelgewinde-Schraube (ø4; 30mm):}
+text {Doppelgewinde-Schraube:}
+moveto 112 225;
+#text {(ø4; 30mm)};
+moveto 18 231;
 font SansSerif italic 4;
-text {Double ended thread screw:} 
-moveto 103 222; 
+text {Double ended thread screw:};
+moveto 85 231;
+text {(ø4; 30)};
+moveto 79 222; 
 image "DoubleThreadScrew.png" 1200 0 0 1
+
+# Copyright
+moveto 260 231;
+font SansSerif plain 4;
+text {© Rolf Niepraschk, 2025/05/04}
+
+# (ø4; 30mm)
