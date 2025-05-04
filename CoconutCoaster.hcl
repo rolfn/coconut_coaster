@@ -10,7 +10,7 @@ font SansSerif plain 4;
 set thinline 0.15;
 set thickline 0.4;
 
-# Konstanten
+# Konstanten und markante Punkte
 set bowlThickness 5;
 set diskHt 10;
 set diskWd 100;
@@ -25,26 +25,19 @@ set diskDrill 4;
 set ballDrill 3.5;
 set Ma 8;   # Abstand erste Maßlinie
 set Mb 5;   # Abstand weiterer Maßlinien
+set bowlMid "91  [expr 210 / 2 - 50]";             # Bezug links
+set bowlLeft  "[expr [X $bowlMid] - $bowlOutR + $bowlThickness / 2] [ Y $bowlMid ]";
+set bowlRight "[expr [X $bowlMid] + $bowlOutR - $bowlThickness / 2] [ Y $bowlMid ]";
 
-# Markante Punkte
-set O1 "91  [expr 210 / 2 - 50]";             # Bezug links
-set ShL "[expr [X $O1] - $bowlOutR + $bowlThickness / 2] [ Y $O1 ]";
-set ShR "[expr [X $O1] + $bowlOutR - $bowlThickness / 2] [ Y $O1 ]";
-
-puts $O1
-puts $bowlOutR
-puts $bowlInR
-
-# Untersetzer und Kugeln # TODO: Schraffuren weg?
-moveto [X $O1] [expr [Y $O1] + $bowlOutR + $diskHt / 2 + $ballOffs];
+# Untersetzer und Kugeln 
+moveto [X $bowlMid] [expr [Y $bowlMid] + $bowlOutR + $diskHt / 2 + $ballOffs];
 set diskCenter [here]
 rectmid $diskCenter $diskWd $diskHt;
 hatch 45 1.2;
 set diskOrig [here]
-set O2 "[expr [X $diskOrig] + 165] [Y $diskOrig]"; # Bezug rechts
+set belowViewCenter "[expr [X $diskOrig] + 165] [Y $diskOrig]"; # Bezug rechts
 pen black $thinline solid;
 hatchrectmid $diskOrig $diskWd $diskHt;
-#puts [here]
 pen black $thickline solid;
 circle [expr [X [here]] - $ballCircleR] [expr [Y [here]] - $diskHt - $ballR / 2] $ballR;
 set leftBallCenter [here]
@@ -55,31 +48,30 @@ circle [X [here]] [expr [Y [here]] + $diskHt + 2 * $ballR] $ballR;
 pen black $thinline solid;
 hatchcircle [here] $ballR;
 pen black $thickline solid;
-circle [expr [X $O1] - [expr cot($ballAngle) * $ballCircleR]] [Y [here]] $ballR;
+circle [expr [X $bowlMid] - [expr cot($ballAngle) * $ballCircleR]] [Y [here]] $ballR;
 circle [X [here]] [expr [Y [here]] - $diskHt - 2 * $ballR] $ballR;
 
 pen white;
-fillcircle $O1 $bowlOutR;
-arc $O1 $bowlOutR 0 180; 
-arc $O1 $bowlInR 0 180;
-arc $ShL [expr $bowlThickness / 2] 180 0;
-arc $ShR [expr $bowlThickness / 2] 180 0;
+fillcircle $bowlMid $bowlOutR;
+arc $bowlMid $bowlOutR 0 180; 
+arc $bowlMid $bowlInR 0 180;
+arc $bowlLeft [expr $bowlThickness / 2] 180 0;
+arc $bowlRight [expr $bowlThickness / 2] 180 0;
 pen black $thickline solid;
-arc $O1 $bowlOutR 0 180; 
-arc $O1 $bowlInR 0 180;
-arc $ShL [expr $bowlThickness / 2] 180 0;
-arc $ShR [expr $bowlThickness / 2] 180 0;
-line [X $ShL] [expr [Y $ShL] - $bowlThickness / 2] [X $ShR] [expr [Y $ShR] - $bowlThickness / 2];
+arc $bowlMid $bowlOutR 0 180; 
+arc $bowlMid $bowlInR 0 180;
+arc $bowlLeft [expr $bowlThickness / 2] 180 0;
+arc $bowlRight [expr $bowlThickness / 2] 180 0;
+line [X $bowlLeft] [expr [Y $bowlLeft] - $bowlThickness / 2] [X $bowlRight] [expr [Y $bowlRight] - $bowlThickness / 2];
 
 # Sicht von unten
 pen $thickline solid;
-circle $O2 $bowlOutR;
-circle $O2 $diskR ;
-moveto $O2;
+circle $belowViewCenter $bowlOutR;
+circle $belowViewCenter $diskR ;
+moveto $belowViewCenter;
 for {set i 0} {< $i 3} {incr $i} {
   set phi [expr $i * $ballAngle];
-  puts "phi=$phi"
-  moveto $O2; movepolar -$ballCircleR $phi;
+  moveto $belowViewCenter; movepolar -$ballCircleR $phi;
   pen white;
   fillcircle $ballR;
   pen black $thickline solid;
@@ -117,19 +109,17 @@ pen black $thickline solid;
 polygon $tmp $a $b;
 
 pen black $thinline dashdotted;
-circle $O2 $ballCircleR
+circle $belowViewCenter $ballCircleR
 
 # Mittellinien
 pen black $thinline dashdotted;
 moveto $diskOrig; 
 linemid [expr 2.1 * $diskR] 0;
-moveto [X $O1] [expr [Y $O1] + 0.75 * $bowlOutR];
-linemid [expr 1.6 * $bowlOutR] 90;
-#moveto [expr [X $leftBallCenter]] [Y $diskOrig];
+moveto [X $bowlMid] [expr [Y $bowlMid] + 0.62 * $bowlOutR];
+linemid [expr $bowlOutR + $ballOffs + $diskHt + 15] 90;
 moveto $diskLeft;
-###fillcircle [here] 1;
 linemid [expr 1.1 * (4 * $ballR + $diskHt)] 90;
-moveto $O2;
+moveto $belowViewCenter;
 linemid [expr 2.1 * $bowlOutR]  0;
 linemid [expr 2.1 * $bowlOutR] 90;
 
@@ -137,10 +127,10 @@ linemid [expr 2.1 * $bowlOutR] 90;
 pen black $thinline solid;
 set dx [expr $ballCircleR * cos(30)];
 set dy [expr $ballCircleR * sin(30)];
-moveto [expr [X $O2] - $dx] [expr [Y $O2] + $dy];
+moveto [expr [X $belowViewCenter] - $dx] [expr [Y $belowViewCenter] + $dy];
 dimlinerel [expr 2 * $dx] [expr -2 * $dy] "ø%.0f";
 #
-moveto [X $O2] [expr [Y $O2] - $diskR];
+moveto [X $belowViewCenter] [expr [Y $belowViewCenter] - $diskR];
 #fillcircle [here] 1;
 linerel [expr -$bowlOutR - $Mb] 0;
 dimlinerel 0 [expr 2 * $diskR] "≈ ø%.0f";
@@ -177,13 +167,13 @@ arrow $c $d;
 font SansSerif italic 4;
 moveto $c; label "Wooden disc" N;
 font SansSerif plain 4;
-moverel 0 -6; label "Holzscheibe" N;
+moverel 0 -5; label "Holzscheibe" N;
 ## Schale
-set a "[expr [X $O1] + 20] [expr [Y $O1] + 10]"
+set a "[expr [X $bowlMid] + 20] [expr [Y $bowlMid] + 10]"
 font SansSerif italic 4;
 moveto $a; label "Coconut bowl" E;
 font SansSerif plain 4;
-moverel 0 -6; label "Kokosnuss-Schale" E;
+moverel 0 -5; label "Kokosnuss-Schale" E;
 
 ## Bohrung in Kugel
 set b "[X $b] [expr [Y $b] - $diskHt /2 - $ballR /2]";
@@ -207,22 +197,28 @@ text {Untersetzer für Kokosnuss-Schalen} 297;
 font SansSerif italic 8;
 text {Coaster for coconut bowls} 297; 
 
-# Hinweis zu Schrauben
+# Hinweise 
 moveto 18 195;
 font SansSerif plain 4;
 text {Doppelgewinde-Schraube:}
-moveto 18 201;
+moveto 18 200;
 font SansSerif italic 4;
 text {Double ended thread screw:};
-moveto 85 201;
-text {(ø4, 30)};
-moveto 79 192; 
+moveto 85 200;
+text {(ø4; 30)};
+moveto 79 191; 
 image "DoubleThreadScrew.png" 1200 0 0 1
+#
+moveto 18 210;
+font SansSerif plain 4;
+text {Alle Maße in mm}
+moveto 18 215;
+font SansSerif italic 4;
+text {All dimensions in mm};
 
 # Copyright
 moveto 278 231;
 font SansSerif plain 3;
 text {© Rolf Niepraschk, 2025/05/04}
 
-#moveto $diskLeft; fillcircle [here] 1;
-
+###fillcircle [here] 1;
