@@ -207,7 +207,7 @@ text {Double ended thread screw:};
 moveto 85 200;
 text {(ø4; 30)};
 moveto 79 191; 
-image "DoubleThreadScrew.png" 1200 0 0 1
+image "img/DoubleThreadScrew.png" 1200 0 0 1
 #
 moveto 18 210;
 font SansSerif plain 4;
